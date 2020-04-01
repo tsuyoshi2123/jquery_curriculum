@@ -25,12 +25,21 @@
     <script src="../../common/js/jquery.js"></script>
     <script>
       $(function() {
+        // $('.nav').find('li').on('click', function() {
+          // ！セレクタのliのクリックして関数が実行される
           $('.nav').find('li').click(function() {
-            var num = $(this).index();
+          // 親要素のセレクタのインデックス番号がnum変数に代入される
+          var num = $(this).index();
+            // contentsクラスのli三つのクラスにクラスが付与される
             $('.contents').find('li').addClass('is-hidden');
+            // contentsクラスのliのクリックされたindex番号のクラスを消去される
             $('.contents').find('li').eq(num).removeClass('is-hidden');
           });
         });
+
+        // function jquery　なぜあるのか
+        // Q1findとchildrenの違い
+        // onメソッドとclickメソッドの違い
 
       // 今回やるのはタブメニューです。
       // navの小要素であるliをクリックして、contents内の小要素であるli要素を表示させる。
