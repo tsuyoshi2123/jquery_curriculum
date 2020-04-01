@@ -68,17 +68,135 @@
   </div>
 </div>
 <script src="../../common/js/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- CDN 負荷分散 表示の分散化 -->
 <script>
+// メソッド一覧
+// .click クリックすると発生する
+// .prepend中左 .append中右 .before外左 .after外右 
+// .addClass　クラス付与
+// .find 指定されたDOM要素から引数に渡された要素を要素を取ってくれる ul→li を詳細化する時に使う
+// .index その要素は何番目の要素か教えてくれるメソッド
+// .remove クラス 要素　など対象要素を消去してくれる
+// .eq(num) DOM要素の引数の値に等しい番号のDOMを指定する。
+
+// 便利機能
+// $(this)  前DOMの指定
+// fadeOut(2000) fadeout　消えるやつ
+// ('large')
+// alert() 子画面(ダイアログ)を表示させるを表示させる　
+
+
+// 命名規則
+// 【キャラメルケース】　 単語の先頭を大文字にする命名規則
+// 【スネークケース】　   単語の間をアンダーバーでつなぐ命名規則　DBなどで扱われる値に使用されることが多いようです。
+// 【ケバブケース】　     単語の間をハイフンでつなぐ命名規則です。HTMLではclass名であったり、ファイル名などでもよく見かけます。
+
+
+
+// DOMとは HTMLやXMLなどのドキュメントをエディタ上のプログラムから利用するAPI
+// XMLとは HTMLホームページ専用 XMLデータのやりとり設定ファイルを書く時
+// $(function() { });　DOMが準備されてからjQueryを実行するおまじない。
+
+
 // 第1問  id='q1'の要素の文字色を赤色にせよ。
+// Jquery $('セレクタ').css('プロパティ','値')
+  $(function() {
+    // id='q1'要素が色が赤くなる
+    $('#q1').css('color','red');
+   
 // 第2問  id='q2'の要素をクリックしたら背景色をピンクにせよ。
+    // 1 id='q2'要素をクリックしたら実行され　
+    $('#q2').click(function() {
+      // 2 クリックしたら$('#q2')の要素の色が青色になる
+      $(this).css('background-color', 'cadetblue')
+    });
+
+// .clickメソッドは()の中に関数をかくと指定した要素をクリックした後にその関数を実行してくれる
+// $(this)　この記述の前に指定されたDOMを指定する⇦この場合指定しているのは$('#q2')のこと
+// .clickした時に関数が呼び出されて$('this')によってDOM呼び出ししてCSSを付与してあげる
+
 // 第3問  id='q3'の要素をクリックしたら2秒かけてフェードアウトさせよ。
+    // 1 id='q3'要素をクリックしたらfadeout関数発動
+    $('#q3').click(fadeOut)
+    // 関数のfadeout発動
+    function fadeOut() {
+    // 2 前DOMを呼び出し引数を受け渡すfunction fadeOut() ⇦ ()に$(this).fadeOut(2000);代入するイメージ
+    // 2秒かけてフェードアウトする
+      $(this).fadeOut(2000);
+    }
 // 第4問  id='q4'の要素をクリックしたらこの要素の前後とこの要素内の前後にテキストを挿入せよ。
+    // 1 クリックしたらメソッド内の無名関数が発生します
+    $('#q4').click(function() {
+      // 2 前DOMに受け渡しメソッドを呼び出している
+      $(this).prepend('DOMの中の前')
+             .append('DOMの中の後')
+             .before('DOMの前')
+             .after('DOMの後');
+    });
+    // メソッドチェイン → $("セレクタ").メソッド().メソッド().メソッド().…
 // 第5問  id='q5'の要素をクリックしたらこの要素にlargeというクラスを付与せよ。
+    // 1 クリックしたらメソッド内の関数が呼び出される
+    $('#q5').click(function() {
+      // 2 id='q5'にクラス付与する cssが入っている場合適用できる
+      $(this).addClass('large');
+    });
 // 第6問  id='q6'の要素をクリックしたらこの要素を2秒かけてmargin-topとmargin-leftを100pxの位置に移動させよ。
+    // 1 クリックしたらメソッド内の関数が呼び出される
+    $('#q6').click(function() {
+      // 2 animateメソッドが呼び出される
+      // 3 animate内の引数2つを関数に受け渡す
+      $(this).animate({
+        'marginLeft': 100,
+        'marginTop': 100
+      }, 2000);
+    });
+//  .animate( 属性 [,期間] [,イージング] [,function] )
+// ・属性：変更したいcss属性をObjectオブジェクトで指定
+// ・期間：目的の値までの期間をミリ秒で指定
+// ・イージング：アニメの加速度のタイプを指定
+// ・function：アニメの完了後に実行するコールバックを指定
+
 // 第7問  id='q7'の子要素をクリックしたら、その要素のインデックス（何番目か）をconsole.log()とalert()を用いて表示させよ。
+    // ul → liをクリックした時に関数が呼び出される
+    $('#q7').find('li').click(function() {
+      // 前DOMのindex番号を呼び出し
+      var targetNum = $(this).index();
+      // index番号の呼び出し
+      // 呼び出し
+      alert(targetNum);
+    })
+
+    // index()その要素の何番目か教えてくれるメソッド
+    // var　〜　変数定義する宣言です ここでは
 // 第8問  id='q8'の要素をhoverしたらlargeというクラスを付与し、hoverが外れたら、クラスを削除せよ。
+    $('#q8').hover(function() {
+      // hoverしたらクラス付与で大きくなる(クラスについているCSSは要素の大きくなるのがついている)
+      $(this).addClass('large');
+    }, function() {
+      // hover(関数, 関数)の場合はhoverした後に第一引数の関数がhoverした時に実行され、hoverが離れた時に第二引数を実行します。
+      $(this).removeClass('large');
+    });
+
+
 // 第9問  id='q9'の要素をクリックしたらこの要素に設定してあるdata属性をconsoleに表示せよ。
+    // クリックしたら関数が呼び出される
+    $('#q9').click(function() {
+      // text変数内に代入されている.data()で取得することができる
+      // 指定クラス内のdata-text内の情報を取得
+      var text = $(this).data('text');
+      console.log(text);
+    });
+
 // 第10問 id='q10'の子要素をクリックしたら、その要素のインデックスと等しいid='q11'の子要素にlargeというクラスを追加せよ。
+    // クリックしたら関数が呼び出される
+    $('#q10').find('li').click(function() {
+      // 代入されているインデックス番号を呼び出し
+      var num = $(this).index();
+      // id=q11,liのDOM要素の引数の値に等しい番号のDOMを指定('large')する。
+      $('#q11').find('li').eq(num).addClass('large');
+    });
+  });
 </script>
 </body>
 </html>
