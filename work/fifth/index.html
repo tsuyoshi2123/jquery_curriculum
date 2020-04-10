@@ -90,27 +90,50 @@
       //     $('ul.list li').toggle(v=="All").filter('[data-category-type='+v+']').show();
       //   }).trigger('change');
 
-      // 1 セレクタで選択されたvalueがvに代入される
-      // 2 ALLを選択した場合全表示される
-      // 3 取得した要素を繰り返し処理で一つずつ取り出して表示させる
-      // 4 カテゴリ毎にに表示させる
-      // 5 それ以外は非表示にする
+      // 1 セレクタを指定した時に関数が発生する
+      // 2 セレクタで選択されたvalueがvに代入される
+      // 3 vの値がALLと同じだった場合全表示される
+      // 4 liタグ内に第二引数の情報が変数と同じだった場合表示
+      // 5　同じじゃない場合非表示
+      // 6 取得した要素を繰り返し処理で一つずつ取り出して表示させる
+
       $(".select").change(function(){ // .change()使用
-        var v=$(this).val(); // .val()使用
-          if(v=="all"){
-            $('ul.list li').each(function(){
-               $(this).show() 
-            }); // .each()使用
-          } else {
-            $('ul.list li').each(function(){
-              if($(this).data("category-type")==v){ // .data()使用
-                $(this).show(); // .show()使用
-              } else {
-                $(this).hide(); // .hide()使用
-              }
-            });
-          }
+        var v = $(this).val(); // .val()使用
+        if(v == "all"){
+              $('ul.list li').show(); // .show
+        } else {
+          $('ul.list li').each(function( index, list ){
+            if($(list).data("category-type") == v){ // .data()使用
+              $(this).show(); // .show()使用
+            } else {
+              $(this).hide(); // .hide()使用
+            }
+          });
+        }
       });
+      
+    //  105 if($(this).data("category-type") == v){ // .data()使用
+    // $('ul.list li').each(function(){ // .each()使用
+
+    // 宿題
+    // function jquery　なぜあるのか
+    // answer 予約状態、又はHTMLの読み込みが完了してからjQueryの操作を開始するようにという指定です。
+
+    // Q1findとchildrenの違い
+    // answer [find] 詳細かしたい時に使用する　[children] 指定要素の兄弟要素に使用する
+
+    // onメソッドとclickメソッドの違い
+    // answer [onメソッド] 指定要素の追加に対応できる [clickメソッド]　指定メソッドのみ適用される
+
+
+    // allの場合eachを使わずに表示できる
+    // 105　function引数をthisを使わずに eachていう関数にthisを使わずに繰り返し処理で表示させる
+    // ==と===の違いどう違うか使い方　優先度 ==が高い　===低め
+    // ==等価演算子 右辺と左辺の値が同じだった場合
+    //  ===厳密等価演算子 両端の値と型が同じだった場合
+  
+
+
     // 今回やるのはソート機能です。
     // selectボックスをクリックして言語を選び、その言語と関係のあるリストだけが表示されるプログラムです。
     // [処理の流れ]
