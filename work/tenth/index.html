@@ -91,9 +91,11 @@
       //   hits: '20',
       // },
 $(function(){
+  // ******クリックした時にajaxでリクエストを送ってあげる*****************
   $('#js-search-button').on('click',function(){// 検索するをクリックすると実行する
-    var serchword = $('#js-search-word').val();  // セレクタをクリックすると関数が実行する
-
+    // グローバル変数
+    var serchword = $('#js-search-word').val(); // 検索したキーワードをkeywordに受け渡す
+    // console.log(serchword) 検索した文字がserchwordに代入される
     $.ajax({
       // [共通パラメータ]
       url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', //  通信先のURL
@@ -103,39 +105,51 @@ $(function(){
         // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
         applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
         booksGenreId: '001',
-        hits: '20',// 1ページ辺りの取得件数
-        keyword: serchword,　// 検索のキーワード
+        hits: 20, // 1ページ辺りの取得件数
+        keyword: serchword,　// valで取得した検索のキーワード数
+        length: 20, //　長さを20まで表示 
       }
-    }).done(function(data){ 
-      console.log(data)
-    })
-  })
-
-    // function(data){
-    //   if (data.count > 0){
-    //     $('ul').empty();
-    //     $('.coment').css('display','none');
-    //     $.each(data.Items,function(i,item){
-    //       console.log(item);
-    //       var list = $('<li class="lists__item">' + 
-    //                   '<div class="lists__item__inner">' + 
-    //                   '<a href="' +item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + 
-    //                   '<img src="' + item.Item.largeImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
-    //                   '<p class="lists__item__detail">作品名：' + item.Item.title + '</p>' +
-    //                   '<p class="lists__item__detail">作者　：' + item.Item.author + '</p>' +
-    //                   '<p class="lists__item__detail">出版社：' + item.Item.publisherName + '</p>' + 
-    //                   '</a>' + '</div>' + '</li>'
-    //       );
-    //       $('ul').append(list);
-    //     })
-    //   }
-    //   if (data.count === 0) {
-    //     $('ul').empty();
-    //     $('ul').before('<div class="coment"></div>')
-    //     coment = $('.coment');
-    //     coment.html('<p class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>');
-    //   };
-    // };
+      // *****通信が成功した時にアクションが起こる***********************
+    }).done(function(data) { 
+      // console.log(data)
+      // console.log(data.page)
+      var template = '';
+      $.each(data.Items, function(i,item) {
+          // console.log(data.count)     
+        // 検索数が0以上の場合
+        // console.log(data)　
+        // 検索表示した書籍の情報が入っている
+        // console.log(i) 　　　　　 //　data/Items/i 数値が入ってる 
+        // console.log(item)       //　data/Items/item 本の値が入ってる
+        $('.message').remove();
+        $('.lists').empty();        // .lists内のコンテンツを全て消去する
+        if (data.count > 0) {
+          template += '<li class='+'lists__item'+'>'+
+                      '<div class='+'lists__item__inner'+'>'+
+                      '<a href='+' class='+'lists__item__link'+' target='+'_blank'+'>'+
+                      '<img src='+ item.Item.largeImageUrl +' class='+'lists__item__img'+' alt='+'>'+
+                      '<p class='+'lists__item__detail'+'>作品名：'+ data.Items[i].Item.title +'</p>'+
+                      '<p class='+'lists__item__detail'+'>作者　：'+ data.Items[i].Item.author +'</p>'+
+                      '<p class='+'lists__item__detail'+'>出版社：'+ data.Items[i].Item.publisherName +'</p>'+
+                      '</a>'+'</div>'+'</li>';
+        } 
+      $('.lists').prepend(template) // リストをulの下に表示させる
+      });
+    // ******通信が失敗した時にアクションが起こる***********************
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      // console.log(jqXHR)       // 通信失敗時の情報
+      // console.log(textStatus)  // error
+      // console.log(errorThrown) //Bad Request
+        $('.message').remove();
+        $('.lists').empty();
+        if (jqXHR.status === 429) { // 通信に失敗した時 429が帰ってくる
+        $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続をご確認ください</div>')
+        }else if(jqXHR.status === 400) {
+          $('.lists').before(
+            '<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>'
+        )};
+    });
+  });
 });
     </script>
   </body>

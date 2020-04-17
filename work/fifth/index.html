@@ -84,15 +84,9 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-      // $(function() {
-      //   $(".select").on('change',function(){
-      //     var v=$(this).val();
-      //     $('ul.list li').toggle(v=="All").filter('[data-category-type='+v+']').show();
-      //   }).trigger('change');
-
       // 1 セレクタを指定した時に関数が発生する
       // 2 セレクタで選択されたvalueがvに代入される
-      // 3 vの値がALLと同じだった場合全表示される
+      // 3 変数名の値がALLと同じだった場合全表示される
       // 4 liタグ内に第二引数の情報が変数と同じだった場合表示
       // 5　同じじゃない場合非表示
       // 6 取得した要素を繰り返し処理で一つずつ取り出して表示させる
@@ -111,6 +105,25 @@
           });
         }
       });
+
+      // $(function() {
+      //   $(".select").change(function() {
+      //     var opClick = $(this).val();
+      //     if(opClick === "all") {
+      //       $(".list").find("li").show();
+      //     }else{
+      //       $(".list").find ("li").each(function(index, list) {
+      //         if($(list).data("category-type")===opClick) {
+      //           $(list).show();
+      //         }else{
+      //           $(list).hide();
+      //         };
+      //     });
+      //   };
+      // })
+      // })
+
+      
 
       // dom操作をなるべくなくす少なくする
       // 変数　
