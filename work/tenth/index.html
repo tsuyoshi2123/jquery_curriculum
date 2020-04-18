@@ -102,22 +102,21 @@ $(function(){
         length: 20, //　長さを20まで表示 
       }
       // *****通信が成功した時にアクションが起こる***********************
-    }).done(function(data) { 
+    }).done(function(data) {
       // console.log(data) // 情報を取り出す
       // console.log(data.page)]
-      if(data.count === 0){   // 検索結果が見つからない場合
+      if(data.count === 0){  // 検索結果が見つからない場合の処理
         notMessage();
-      } else {
+      } else if(data.page > 0){
         showContets(data.Items);
       }
-
     // ******通信が失敗した時にアクションが起こる***********************
     }).fail(function(jqXHR, textStatus, errorThrown) {
-      // console.log(jqXHR)       // 通信失敗時の情報
-      // console.log(textStatus)  // error
-      // console.log(errorThrown) //Bad Request
-      $('.message').remove();
-      $('.lists').empty();
+    // console.log(jqXHR)       // 通信失敗時の情報
+    // console.log(textStatus)  // error
+    // console.log(errorThrown) //Bad Request
+    $('.message').remove();
+    $('.lists').empty();
       if (jqXHR.status === 429) { // 通信に失敗した時 429が帰ってくる
       $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続をご確認ください</div>')
       }
@@ -130,31 +129,26 @@ $(function(){
       '<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>'
     )
   }
-
-
-  function showContets(data){
-    // $('.message').remove();    // テキスト消去する
-    // $('.lists').empty();       // .lists内のコンテンツを全て消去する
-    // console.log(result)
+  function showContets(result){
+    // $('.lists').empty();  // .lists内のコンテンツを全て消去する
+    // console.log(result)   // 0~19番の値を取得する
+    $('.message').remove();  // テキスト消去する
     var template = '';
-    $.each(data, function(i,item) {
-      console.log(data)  // 4/18　ここまで 情報がdata/Itemが取れてる
-
-      // console.log(data.count)  // 検索数が0以上の場合
-      // console.log(data)　
-      // 検索表示した書籍の情報が入っている
-      // console.log(i) 　　　　　 //　data/Items/i 数値が入ってる 
-      // console.log(item)       //　data/Items/item 本の値が入ってる
-      template += '<li class='+'lists__item'+'>'+
-                  '<div class='+'lists__item__inner'+'>'+
-                  '<a href='+' class='+'lists__item__link'+' target='+'_blank'+'>'+
-                  '<img src='+ item.Item.largeImageUrl +' class='+'lists__item__img'+' alt='+'>'+
-                  '<p class='+'lists__item__detail'+'>作品名：'+ data.Items[i].Item.title +'</p>'+
-                  '<p class='+'lists__item__detail'+'>作者　：'+ data.Items[i].Item.author +'</p>'+
-                  '<p class='+'lists__item__detail'+'>出版社：'+ data.Items[i].Item.publisherName +'</p>'+
-                  '</a>'+'</div>'+'</li>';
+    $.each(result, function(i,item){
+    // console.log(i) 　  //　インデックス番号 
+    // console.log(item)  // 検索した書籍の情報が入っている Item情報が入っている
+      template+=`<li class='lists__item'>
+                  <div class='lists__item__inner'>
+                    <a href='${item.Item.itemUrl}' class='lists__item__link' target='_blank'>
+                      <img src='${item.Item.largeImageUrl}' class='lists__item__img' alt='${item.Item.title}'>
+                      <p class='lists__item__detail'>作品名：${item.Item.title}</p>
+                      <p class='lists__item__detail'>作者：${item.Item.author}</p>
+                      <p class='lists__item__detail'>出版社：${item.Item.publisherName}</p>
+                    </a>
+                  </div>
+                </li>`;
     });
-    $('.lists').prepend(template) // リストをulの下に表示させる
+    $('.lists').html(template)  // リストをulの下に表示させる
   }
 });
     </script>
