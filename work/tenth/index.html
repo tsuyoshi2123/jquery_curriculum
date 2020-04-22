@@ -119,70 +119,74 @@ $(function(){
       });
     // console.log(textStatus)  // error
     // console.log(errorThrown) //Bad Request
-
-
-
-    function notMessage() {
-      $('.message').remove();
-      $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>')
-    };
-    
-    function show_error(jqXHR){
-      // console.log(jqXHR)
-      $('.message').remove();
-      $('.lists').empty();
-      if(jqXHR.status === 429) {
-        $('.lists').before('<div class="message">予期せぬエラーが発生しました</div>')
-      } else if(jqXHR.status === 400) {
-        $('.lists').before('<div class="message">検索文字が空、もしくは半角英数が１文字になっています</div>')
-      } else {
-        $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続を確認してください</div>')
-      };
-    };
-
-    
-
-    function showContets(result){
-      $('.message').remove();  // テキスト消去する
-      // $('.lists').empty();  // .lists内のコンテンツを全て消去する
-      // console.log(result)   // 0~19番の値を取得する
-      var template = '';
-      $.each(result, function(i,item){
-      // console.log(i) 　  //　インデックス番号 
-      // console.log(item)  // 検索した書籍の情報が入っている Item情報が入っている
-      template += '<li class='+'lists__item'+'>'+
-                    '<div class='+'lists__item__inner'+'>'+
-                      '<a href='+' class='+'lists__item__link'+' target='+'_blank'+'>'+
-                        '<img src='+ item.Item.largeImageUrl +' class='+'lists__item__img'+' alt='+'>'+
-                        '<p class='+'lists__item__detail'+'>作品名：'+ item.Item.title +'</p>'+
-                        '<p class='+'lists__item__detail'+'>作者&emsp;：'+ item.Item.author +'</p>'+
-                        '<p class='+'lists__item__detail'+'>出版社：'+ item.Item.publisherName +'</p>'+
-                      '</a>'+
-                    '</div>'+
-                  '</li>';     
-        });
-      // $('.lists').html(template)  // リストをulの下に表示させる
-    };
-    
-    function showPager() {
-      // console.log(show)// 情報取り出し
-      var pager__template =
-        '<div class='+'js-pager'+'>'+
-          '<ul class='+'btn-wrapper'+'>'+
-            '<li class='+'prev　btn-item'+'>'+
-              '<a class='+'btn-anchor'+' href="#"'+'>'+'前へ'+
-              '</a>'+
-            '</li>'+
-            '<li class='+'next　btn-item'+'>'+
-              '<a class='+'btn-anchor'+' href="#"'+'>'+'次へ'+
-              '</a>'+
-            '</li>'+
-          '</ul>'+
-        '</div>'
-        $('.lists').after(pager__template);
-    }
   });
-})
+
+  function notMessage() {
+    $('.message').remove();
+    $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>')
+  };
+  
+  function show_error(jqXHR){
+    // console.log(jqXHR)
+    $('.message').remove();
+    $('.lists').empty();
+    if(jqXHR.status === 429) {
+      $('.lists').before('<div class="message">予期せぬエラーが発生しました</div>')
+    } else if(jqXHR.status === 400) {
+      $('.lists').before('<div class="message">検索文字が空、もしくは半角英数が１文字になっています</div>')
+    } else {
+      $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続を確認してください</div>')
+    };
+  };
+
+  function showContets(result){
+    $('.message').remove();  // テキスト消去する
+    $('.lists').empty();  // .lists内のコンテンツを全て消去する
+    // console.log(result)   // 0~19番の値を取得する
+    var template = '';
+    $.each(result, function(i,item){
+    // console.log(i)  //　インデックス番号 
+    // console.log(item)  //検索した書籍の情報が入っている Item情報が入っている
+    template += '<li class='+'lists__item'+'>'+
+                  '<div class='+'lists__item__inner'+'>'+
+                    '<a href='+'class='+'lists__item__link'+' target='+'_blank'+'>'+
+                      '<img src='+ item.Item.largeImageUrl +' class='+'lists__item__img'+' alt='+'>'+
+                      '<p class='+'lists__item__detail'+'>作品名：'+ item.Item.title +'</p>'+
+                      '<p class='+'lists__item__detail'+'>作者&emsp;：'+ item.Item.author +'</p>'+
+                      '<p class='+'lists__item__detail'+'>出版社：'+ item.Item.publisherName +'</p>'+
+                    '</a>'+
+                  '</div>'+
+                '</li>';
+      });
+    $('.lists').html(template)  // リストをulの下に表示させる
+  };
+
+  function showPager(show) {
+    console.log(show)//情報取り出し
+    // $('.message').remove();
+    $('.js-pager').remove();
+    var pager__template =
+      '<div class="js-pager"+>'+
+        '<ul class="btn-wrapper">'+
+          '<li class="prev btn-item">'+
+            '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
+            '</a>'+
+          '</li>'+
+          '<li class="next btn-item">'+
+            '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
+            '</a>'+
+          '</li>'+
+        '</ul>'+
+      '</div>'
+      $('.lists').after(pager__template);
+      if(show.page===1){
+        $('.prev').addClass('disabled');
+      }else if(show.page)
+        $('.next').addClass('enabled');
+  };
+  
+
+});
   </script>
 </body>
 </html>
