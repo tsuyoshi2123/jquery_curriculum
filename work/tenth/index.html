@@ -81,7 +81,7 @@
       // </div>
       //
       //
-
+      
 $(function(){
   // ******クリックした時にajaxでリクエストを送ってあげる*****************
   // グローバル変数
@@ -90,44 +90,57 @@ $(function(){
     applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
     booksGenreId: '001',
     hits: 20, // 1ページ辺りの取得件数
-    keyword: searchword,　// valで取得した文字
-    page:1,
+    keyword: '',　// valで取得した文字
+    page: 1, // 1ページ
+  };
+  
+  function init(){
+    parameter.page = 1;
   }
-  
-  var searchword = $('#js-search-word').val();// 検索したキーワードをkeywordに受け渡す
-  // console.log(serchword) // 検索した文字がserchwordに代入される
 
+  $('.search__btn').on('click',function(){
+    init()
+    request();
+  });
   
-  $('#js-search-button').on('click',function(){// 検索するをクリックすると実行する
+  function request() {
+    parameter.keyword = $('#js-search-word').val();// 検索したキーワードをkeywordに受け渡す
     $.ajax({
       // [共通パラメータ]
       url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', //  通信先のURL
       type: 'GET',      // 使用するhttpメソッド
       datatype: 'json', // 応答データの種類 パラメータ形式で送られてくる
       data: parameter,   // 固有パラメーター
-      // *****通信が成功した時にアクションが起こる***********************
+  // *****通信が成功した時にアクションが起こる***********************
     }).done(function(data) {
       // console.log(data) // 情報を取り出す
-      // console.log(data.page)]
-      $('.message').remove();
-      $('.lists').empty();
+      // console.log(data.page)
       if(data.count === 0) {  // 検索結果が見つからない場合の処理
+        $('.lists').empty();
+        $('.message').remove();
         notMessage(data);
       } else {
         showContets(data.Items);
         showPager(data);
-      }
-      // ******通信が失敗した時にアクションが起こる***********************
+      } 
+  // ******通信が失敗した時にアクションが起こる***********************
     }).fail(function(jqXHR, textStatus, errorThrown) {
       show_error(jqXHR) 
     });
+    return false;
       // console.log(textStatus)  // error
       // console.log(errorThrown) //Bad Request
-  });
-      
+  };
+
+  // ******メッセージ一覧***********************
+  function noMorePageMessage() {
+    $('.message').remove();
+    $('.lists').before('<div class="message">これ以上はありません</div>')
+  }
+
   function notMessage() {
     $('.message').remove();
-    $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>')
+    $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>')
   };
   
   function show_error(jqXHR){
@@ -137,7 +150,7 @@ $(function(){
     if(jqXHR.status === 429) {
       $('.lists').before('<div class="message">予期せぬエラーが発生しました</div>')
     } else if(jqXHR.status === 400) {
-      $('.lists').before('<div class="message">検索文字が空、もしくは半角英数が１文字になっています</div>')
+      $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>')
     } else {
       $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続を確認してください</div>')
     };
@@ -161,9 +174,10 @@ $(function(){
                     '</a>'+
                   '</div>'+
                 '</li>';
-      });
+    });
     $('.lists').html(template)  // リストをulの下に表示させる
   };
+  
   
   var pager__template =
     '<div class="js-pager">'+
@@ -172,32 +186,46 @@ $(function(){
           '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
           '</a>'+
         '</li>'+
-        '<li class="next btn-item">'+
-          '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
-          '</a>'+
+          '<li class="next btn-item">'+
+            '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
+            '</a>'+
         '</li>'+
       '</ul>'+
     '</div>'
 
-
-    var pager__Last = false;
-    $(document).on('click','.prev',function(show) {
-      console.log(show)
-    })
-    $('li').on('click','next',function(show) {
-      console.log(show)
-    })
-
-  function showPager(show) {
-    console.log(show)//情報取り出し
-    $('.message').remove();
-    $('.js-pager').remove();
-      $('.lists').after(pager__template);
-      if(show.page===1){ // 1ページ目は前へは必然的に戻れないので
-        $('.prev').addClass('disabled');
-      }else if(show.page === show.pageCount) {
-        $('.next').addClass('disabled');
+    
+    $(document).on('click','.prev',function() {// 前のページ
+      if(parameter.page > 1){
+        parameter.page--;
+        request();
+        return　false;
       }
+    });
+    
+    $(document).on('click','.next',function(show) {// 次ページ
+    var isLastPage = show.pageCount
+    if (isLastPage) {
+      return noMorePageMessage();
+      $('.lists').empty();
+      return　false;
+    }else{
+      parameter.page++;
+      request();
+    };
+  });
+
+  function showPager(show) {  // ページネーション
+    console.log(show)//情報取り出し
+    // $('.lists').empty();
+    $('.js-pager').remove();
+    $('.prev','.next').removeClass('disabled');
+    $('.lists').after(pager__template);
+    if(show.page===1){ // 1ページ目は前へは必然的に戻れないので
+      $('.prev').addClass('disabled');
+    }else if(show.page === show.pageCount) {// 現在のページ　= 最後のページ　だった場合
+      $('.next').addClass('disabled');
+      // return false;
+    };
   };
 });
   </script>
