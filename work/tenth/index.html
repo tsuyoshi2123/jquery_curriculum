@@ -84,23 +84,27 @@
 
 $(function(){
   // ******クリックした時にajaxでリクエストを送ってあげる*****************
+  // グローバル変数
+  var parameter = {
+    // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+    applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+    booksGenreId: '001',
+    hits: 20, // 1ページ辺りの取得件数
+    keyword: searchword,　// valで取得した文字
+    page:1,
+  }
+  
+  var searchword = $('#js-search-word').val();// 検索したキーワードをkeywordに受け渡す
+  // console.log(serchword) // 検索した文字がserchwordに代入される
+
+  
   $('#js-search-button').on('click',function(){// 検索するをクリックすると実行する
-    // グローバル変数
-    var serchword = $('#js-search-word').val(); // 検索したキーワードをkeywordに受け渡す
-    // console.log(serchword) 検索した文字がserchwordに代入される
     $.ajax({
       // [共通パラメータ]
       url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', //  通信先のURL
       type: 'GET',      // 使用するhttpメソッド
       datatype: 'json', // 応答データの種類 パラメータ形式で送られてくる
-      data: {
-        // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-        applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-        booksGenreId: '001',
-        hits: 20, // 1ページ辺りの取得件数
-        keyword: serchword,　// valで取得した文字
-        length: 20, //　長さを20まで表示 
-      }
+      data: parameter,   // 固有パラメーター
       // *****通信が成功した時にアクションが起こる***********************
     }).done(function(data) {
       // console.log(data) // 情報を取り出す
@@ -113,14 +117,14 @@ $(function(){
         showContets(data.Items);
         showPager(data);
       }
-    // ******通信が失敗した時にアクションが起こる***********************
-      }).fail(function(jqXHR, textStatus, errorThrown) {
-        show_error(jqXHR) 
-      });
-    // console.log(textStatus)  // error
-    // console.log(errorThrown) //Bad Request
+      // ******通信が失敗した時にアクションが起こる***********************
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      show_error(jqXHR) 
+    });
+      // console.log(textStatus)  // error
+      // console.log(errorThrown) //Bad Request
   });
-
+      
   function notMessage() {
     $('.message').remove();
     $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>')
@@ -160,32 +164,41 @@ $(function(){
       });
     $('.lists').html(template)  // リストをulの下に表示させる
   };
+  
+  var pager__template =
+    '<div class="js-pager">'+
+      '<ul class="btn-wrapper">'+
+        '<li class="prev btn-item">'+
+          '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
+          '</a>'+
+        '</li>'+
+        '<li class="next btn-item">'+
+          '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'
+
+
+    var pager__Last = false;
+    $(document).on('click','.prev',function(show) {
+      console.log(show)
+    })
+    $('li').on('click','next',function(show) {
+      console.log(show)
+    })
 
   function showPager(show) {
     console.log(show)//情報取り出し
-    // $('.message').remove();
+    $('.message').remove();
     $('.js-pager').remove();
-    var pager__template =
-      '<div class="js-pager"+>'+
-        '<ul class="btn-wrapper">'+
-          '<li class="prev btn-item">'+
-            '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
-            '</a>'+
-          '</li>'+
-          '<li class="next btn-item">'+
-            '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
-            '</a>'+
-          '</li>'+
-        '</ul>'+
-      '</div>'
       $('.lists').after(pager__template);
-      if(show.page===1){
+      if(show.page===1){ // 1ページ目は前へは必然的に戻れないので
         $('.prev').addClass('disabled');
-      }else if(show.page)
-        $('.next').addClass('enabled');
+      }else if(show.page === show.pageCount) {
+        $('.next').addClass('disabled');
+      }
   };
-  
-
 });
   </script>
 </body>
