@@ -88,7 +88,7 @@
       // 2 セレクタで選択されたvalueがvに代入される
       // 3 変数名の値がALLと同じだった場合全表示される
       // 4 liタグ内に第二引数の情報が変数と同じだった場合表示
-      // 5　同じじゃない場合非表示
+      // 5 同じじゃない場合非表示
       // 6 取得した要素を繰り返し処理で一つずつ取り出して表示させる
 
       $(".select").change(function(){ // .change()使用
@@ -97,6 +97,9 @@
               $('ul.list li').show(); // .show
         } else {
           $('ul.list li').each(function( index, list ){
+            console.log(index)
+            console.log(list)
+            console.log(index,list)
             if($(list).data("category-type") == v){ // .data()使用
               $(list).show(); // .show()使用
             } else {

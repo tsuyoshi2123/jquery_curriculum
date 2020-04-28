@@ -51,17 +51,14 @@
       // menu__list/li 二つ対象にしている
       // this.children('ul') →　menu__list/li/ul の兄弟要素を指している
       $('.menu__list').children('li').hover(
-        function() {
-          $(this).children('ul').stop().slideDown();
-        },
-        function() {
-          $(this).children('ul').stop().slideUp();
-        });
-      });         
-      
+      function() {
+        $(this).children('ul').stop().slideDown();
+      },
+      function() {
+        $(this).children('ul').stop().slideUp();
+      });
+    });
     // 前回のslideDownまたわslideUpを止めてあげている→そうすることで滑らかに切り替えてくれる  
-
-
     //  if分でスライド
     //   $('.menu__list__title').hover(function() {
     //     if ($(this).next().css("display") == "none"){
@@ -70,9 +67,6 @@
     //       $(this).next().slideUp();
     //     }
     //   });
-    // 
-
-
     // メニューをhoverすると隠れている中のメニューが表示され、メニューから離れると中のメニューが非表示されるプログラムです。
     // [使用するメソッド]
     // .hover(関数, 関数) 要素の上にマウスカーソルが乗ると第1引数の関数を実行し、マウスカーソルから離れると第2引数の関数を実行します。

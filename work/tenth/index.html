@@ -60,7 +60,7 @@
       //    <a href='' class='lists__item__link' target='_blank'>
       //      <img src='' class='lists__item__img' alt=''>
       //      <p class='lists__item__detail'>作品名：</p>
-      //      <p class='lists__item__detail'>作者　：</p>
+      //      <p class='lists__item__detail'>作者：</p>
       //      <p class='lists__item__detail'>出版社：</p>
       //    </a>
       //  </div>
@@ -90,19 +90,24 @@ $(function(){
     applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
     booksGenreId: '001',
     hits: 20, // 1ページ辺りの取得件数
-    keyword: '',　// valで取得した文字
+    keyword: '',// valで取得した文字
     page: 1, // 1ページ
+    pageCount: '',
   };
-  
+
   function init(){
     parameter.page = 1;
   }
 
   $('.search__btn').on('click',function(){
+    $('.message').remove();
+    $('.lists').empty();
     init()
     request();
   });
-  
+
+  // GETとPOSTのちがい
+
   function request() {
     parameter.keyword = $('#js-search-word').val();// 検索したキーワードをkeywordに受け渡す
     $.ajax({
@@ -111,31 +116,35 @@ $(function(){
       type: 'GET',      // 使用するhttpメソッド
       datatype: 'json', // 応答データの種類 パラメータ形式で送られてくる
       data: parameter,   // 固有パラメーター
-  // *****通信が成功した時にアクションが起こる***********************
+      // *****通信が成功した時にアクションが起こる***********************
     }).done(function(data) {
-      // console.log(data) // 情報を取り出す
+      // console.log(data.pageCount) // ページ総数取り出す
       // console.log(data.page)
+      parameter.pageCount = data.pageCount  // ページ総数取得
       if(data.count === 0) {  // 検索結果が見つからない場合の処理
-        $('.lists').empty();
-        $('.message').remove();
-        notMessage(data);
+        // $('.message').remove();  // テキスト消去する
+        // $('.lists').empty();  // .lists内のコンテンツを全て消去する
+        // noMorePageMessage();
+        notMessage();
       } else {
-        showContets(data.Items);
-        showPager(data);
-      } 
-  // ******通信が失敗した時にアクションが起こる***********************
+        showContets(data.Items);  // 書籍
+        showPager(data);  //ページネーション
+        // console.log(parameter.pageCount)
+      };
+      // ******通信が失敗した時にアクションが起こる***********************
     }).fail(function(jqXHR, textStatus, errorThrown) {
-      show_error(jqXHR) 
+        show_error(jqXHR) 
     });
-    return false;
-      // console.log(textStatus)  // error
-      // console.log(errorThrown) //Bad Request
+        // return false;
+          // console.log(textStatus)  // error
+          // console.log(errorThrown) //Bad Request
   };
 
   // ******メッセージ一覧***********************
   function noMorePageMessage() {
     $('.message').remove();
     $('.lists').before('<div class="message">これ以上はありません</div>')
+    return false;
   }
 
   function notMessage() {
@@ -147,7 +156,7 @@ $(function(){
     // console.log(jqXHR)
     $('.message').remove();
     $('.lists').empty();
-    if(jqXHR.status === 429) {
+    if(jqXHR.status === 429) {// ネットが切れた時
       $('.lists').before('<div class="message">予期せぬエラーが発生しました</div>')
     } else if(jqXHR.status === 400) {
       $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>')
@@ -160,25 +169,25 @@ $(function(){
     $('.message').remove();  // テキスト消去する
     $('.lists').empty();  // .lists内のコンテンツを全て消去する
     // console.log(result)   // 0~19番の値を取得する
-    var template = '';
+    var template = '';  //変数代入したtemplateに空の変数を代入する
     $.each(result, function(i,item){
-    // console.log(i)  //　インデックス番号 
-    // console.log(item)  //検索した書籍の情報が入っている Item情報が入っている
-    template += '<li class='+'lists__item'+'>'+
-                  '<div class='+'lists__item__inner'+'>'+
-                    '<a href='+'class='+'lists__item__link'+' target='+'_blank'+'>'+
-                      '<img src='+ item.Item.largeImageUrl +' class='+'lists__item__img'+' alt='+'>'+
-                      '<p class='+'lists__item__detail'+'>作品名：'+ item.Item.title +'</p>'+
-                      '<p class='+'lists__item__detail'+'>作者&emsp;：'+ item.Item.author +'</p>'+
-                      '<p class='+'lists__item__detail'+'>出版社：'+ item.Item.publisherName +'</p>'+
-                    '</a>'+
-                  '</div>'+
-                '</li>';
+      console.log(i)  //インデックス番号 
+      console.log(item)  //検索した書籍の情報が入っている Item情報が入っている
+      console.log(item.Item.itemUrl)  //検索した書籍の情報が入っている Item情報が入っている
+      template += '<li class="lists__item">'+
+                    '<div class="lists__item__inner">'+
+                      '<a href='+ item.Item.itemUrl +' class="lists__item__link" target="_blank">'+
+                        '<img src='+ item.Item.largeImageUrl +' class="lists__item__img" alt="">'+
+                        '<p class="lists__item__detail">作品名：'+ item.Item.title +'</p>'+
+                        '<p class="lists__item__detail">作者&emsp;：'+ item.Item.author +'</p>'+
+                        '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +'</p>'+
+                      '</a>'+
+                    '</div>'+
+                   '</li>';
     });
-    $('.lists').html(template)  // リストをulの下に表示させる
+      $('.lists').html(template)  // リストをulの下に表示させる
   };
-  
-  
+
   var pager__template =
     '<div class="js-pager">'+
       '<ul class="btn-wrapper">'+
@@ -186,48 +195,46 @@ $(function(){
           '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
           '</a>'+
         '</li>'+
-          '<li class="next btn-item">'+
-            '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
-            '</a>'+
+        '<li class="next btn-item">'+
+          '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
+          '</a>'+
         '</li>'+
       '</ul>'+
     '</div>'
 
-    
     $(document).on('click','.prev',function() {// 前のページ
-      if(parameter.page > 1){
-        parameter.page--;
-        request();
-        return　false;
-      }
-    });
-    
-    $(document).on('click','.next',function(show) {// 次ページ
-    var isLastPage = show.pageCount
-    if (isLastPage) {
-      return noMorePageMessage();
-      $('.lists').empty();
-      return　false;
-    }else{
+      if(parameter.page === 1){ // return false でイベントを終了させる ブラウザ遷移を中断する
+        return false;
+    }if(parameter.page > 1) {
+      parameter.page--;
+      request();
+    }
+  });
+  
+  $(document).on('click','.next',function (result) {// 次ページ
+    if(parameter.page < parameter.pageCount){ // 現在のページ数 < 検索した時のページ総数
+      // console.log(parameter)
       parameter.page++;
       request();
+    }else if (parameter.page === parameter.pageCount){
+      // $('.lists').empty();
+      // return false;
+      noMorePageMessage();
     };
   });
-
+  
   function showPager(show) {  // ページネーション
-    console.log(show)//情報取り出し
-    // $('.lists').empty();
+    // console.log(show)//情報取り出し
+    $('.prev, .next').removeClass('disabled');
     $('.js-pager').remove();
-    $('.prev','.next').removeClass('disabled');
     $('.lists').after(pager__template);
     if(show.page===1){ // 1ページ目は前へは必然的に戻れないので
       $('.prev').addClass('disabled');
-    }else if(show.page === show.pageCount) {// 現在のページ　= 最後のページ　だった場合
+    }if(show.page === show.pageCount) {// 現在のページ= 最後のページだった場合
       $('.next').addClass('disabled');
-      // return false;
     };
   };
 });
-  </script>
+</script>
 </body>
 </html>
