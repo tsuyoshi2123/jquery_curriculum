@@ -26,7 +26,132 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-      // 楽天ブックスの総合検索APIを使って製作してください。
+      $(function(){
+        // var keyword = $('#js-search-word').val();
+        // $('.search__btn').on('click', function() {// 検索ボタン
+          // 検索ボタンをクリックした時に20件表示
+          // books__word()
+          // });
+          // console.log(keyword)
+          
+          // word = ''
+        $('.search__btn').on('click', function() {
+          const word = $('.search__text__input').val();
+          $.ajax({
+            // 共有パラメータ
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
+            type: 'GET',  // type httpリクエストを指定する 送信形式
+            datatype: 'json', // javascriptデータのやりとりする為のデータ形式
+            data: { // 楽天クエリパラメータ
+              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+              booksGenreId: '001',
+              keyword: word,
+              hits: 20,
+              page: 1,
+            },
+          }).done(done).fail(fail);
+        });
+        
+
+    //  ----------通信に成功した時-------
+        function done(done,b,c){
+          console.log(done);
+          console.log(done.Items);
+          console.log(done.page);
+          switch (true) {
+            case done.page === 1:   // 1ページ目
+              console.log(done.page);
+              books(done);
+              
+            break;
+            case done.Items.length === 0:// 長さが0の時
+              console.log(done);
+              empty_message();
+            break;
+          };
+        };
+
+        function empty_message() {
+          $('.search').after('<div class= message>検索結果が見つかりませんでした<br>別のキーワードを探してください</div>')
+        };
+
+
+
+    //  --------通信に失敗した時-------
+        function fail(fail){  // クライアントエラーレスポンス
+          switch (true) {
+            case fail.status === 400: // 構文エラーー
+              syntax__error();
+            console.log(fail)
+          }
+        };
+
+        function syntax__error() {
+           $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
+        };
+
+        show__books = '';
+        function books(data){
+          $.each(data.Items,
+          function (number,show){
+            // console.log(number)// Items[数字]
+            // console.log(show.Item) // Items情報
+             // console.log(data.Items[number]);// 検索結果情報20件]
+            const book = {
+              title: show.Item.title,
+              largeImageUrl: show.Item.largeImageUrl,
+              itemurl: show.Item.itemUrl,
+              author: show.Item.author,
+              publisherName: show.Item.publisherName
+            };
+            console.log(book);
+            show__books += 
+            //  console.log(book.title)
+            '<li class=lists__item>'+
+              '<div class=lists__item__inner>'+
+                '<a href=' + book.itemurl + ' class=lists__item__link target=_blank>' +
+                  '<img src= ' + book.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
+                  '<p class=lists__item__detail>作品名：' + book.title +'</p>'+
+                  '<p class=lists__item__detail>作者&emsp;：' + book.author +'</p>'+
+                  '<p class=lists__item__detail>出版社：' + book.publisherName + '</p>'+
+                '</a>'+
+              '</div>'+
+            '</li>';
+          });
+            $('.lists').html(show__books);
+        };
+      });
+
+
+
+
+      //   show__books = '';
+      //   function books(data){
+      //     $.each(data.Items, function (number,show){
+      //       // console.log(data)
+      //       // var books__number = data.Items
+      //       show__books +=
+      //             '<li class=lists__item>'+
+      //               '<div class=lists__item__inner>'+
+      //                 '<a href=' + show.Item.itemUrl + ' class=lists__item__link target=_blank>' +
+      //                   '<img src= ' + show.Item.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
+      //                   '<p class=lists__item__detail>作品名：' + show.Item.title +'</p>'+
+      //                   '<p class=lists__item__detail>作者&emsp;：' + show.Item.author +'</p>'+
+      //                   '<p class=lists__item__detail>出版社：' + show.Item.publisherName + '</p>'+
+      //                 '</a>'+
+      //               '</div>'+
+      //             '</li>';
+      //       // console.log(number)// Items[数字]
+      //       // console.log(show.Item) // Items情報
+      //       // console.log(data.Items[number]);// 検索結果情報20件]
+      //     });
+      //     $('.lists').html(show__books);
+      //   };
+      
+      
+      
+        // 楽天ブックスの総合検索APIを使って製作してください。
       // answerの挙動を良く見てね！
       //
       // 下記URLにAPIの仕様が載ってるいので、ブラウザで開いて参考にしてください。
@@ -82,159 +207,8 @@
       //
       //
       
-$(function(){
-  // ******クリックした時にajaxでリクエストを送ってあげる*****************
-  // グローバル変数
-  var parameter = {
-    // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-    applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-    booksGenreId: '001',
-    hits: 20, // 1ページ辺りの取得件数
-    keyword: '',// valで取得した文字
-    page: 1, // 1ページ
-    pageCount: '',
-  };
 
-  function init(){
-    parameter.page = 1;
-  }
-
-  $('.search__btn').on('click',function(){
-    $('.message').remove();
-    $('.lists').empty();
-    init()
-    request();
-  });
-
-  // GETとPOSTのちがい
-
-  function request() {
-    parameter.keyword = $('#js-search-word').val();// 検索したキーワードをkeywordに受け渡す
-    $.ajax({
-      // [共通パラメータ]
-      url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', //  通信先のURL
-      type: 'GET',      // 使用するhttpメソッド
-      datatype: 'json', // 応答データの種類 パラメータ形式で送られてくる
-      data: parameter,   // 固有パラメーター
-      // *****通信が成功した時にアクションが起こる***********************
-    }).done(function(data) {
-      // console.log(data.pageCount) // ページ総数取り出す
-      // console.log(data.page)
-      parameter.pageCount = data.pageCount  // ページ総数取得
-      if(data.count === 0) {  // 検索結果が見つからない場合の処理
-        // $('.message').remove();  // テキスト消去する
-        // $('.lists').empty();  // .lists内のコンテンツを全て消去する
-        // noMorePageMessage();
-        notMessage();
-      } else {
-        showContets(data.Items);  // 書籍
-        showPager(data);  //ページネーション
-        // console.log(parameter.pageCount)
-      };
-      // ******通信が失敗した時にアクションが起こる***********************
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        show_error(jqXHR) 
-    });
-        // return false;
-          // console.log(textStatus)  // error
-          // console.log(errorThrown) //Bad Request
-  };
-
-  // ******メッセージ一覧***********************
-  function noMorePageMessage() {
-    $('.message').remove();
-    $('.lists').before('<div class="message">これ以上はありません</div>')
-    return false;
-  }
-
-  function notMessage() {
-    $('.message').remove();
-    $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>')
-  };
-  
-  function show_error(jqXHR){
-    // console.log(jqXHR)
-    $('.message').remove();
-    $('.lists').empty();
-    if(jqXHR.status === 429) {// ネットが切れた時
-      $('.lists').before('<div class="message">予期せぬエラーが発生しました</div>')
-    } else if(jqXHR.status === 400) {
-      $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>')
-    } else {
-      $('.lists').before('<div class="message">通信に失敗しました。インターネットの接続を確認してください</div>')
-    };
-  };
-
-  function showContets(result){
-    $('.message').remove();  // テキスト消去する
-    $('.lists').empty();  // .lists内のコンテンツを全て消去する
-    // console.log(result)   // 0~19番の値を取得する
-    var template = '';  //変数代入したtemplateに空の変数を代入する
-    $.each(result, function(i,item){
-      console.log(i)  //インデックス番号 
-      console.log(item)  //検索した書籍の情報が入っている Item情報が入っている
-      console.log(item.Item.itemUrl)  //検索した書籍の情報が入っている Item情報が入っている
-      template += '<li class="lists__item">'+
-                    '<div class="lists__item__inner">'+
-                      '<a href='+ item.Item.itemUrl +' class="lists__item__link" target="_blank">'+
-                        '<img src='+ item.Item.largeImageUrl +' class="lists__item__img" alt="">'+
-                        '<p class="lists__item__detail">作品名：'+ item.Item.title +'</p>'+
-                        '<p class="lists__item__detail">作者&emsp;：'+ item.Item.author +'</p>'+
-                        '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +'</p>'+
-                      '</a>'+
-                    '</div>'+
-                   '</li>';
-    });
-      $('.lists').html(template)  // リストをulの下に表示させる
-  };
-
-  var pager__template =
-    '<div class="js-pager">'+
-      '<ul class="btn-wrapper">'+
-        '<li class="prev btn-item">'+
-          '<a class='+'btn-anchor'+' href='+'#'+'>'+'前へ'+
-          '</a>'+
-        '</li>'+
-        '<li class="next btn-item">'+
-          '<a class='+'btn-anchor'+' href='+'#'+'>'+'次へ'+
-          '</a>'+
-        '</li>'+
-      '</ul>'+
-    '</div>'
-
-    $(document).on('click','.prev',function() {// 前のページ
-      if(parameter.page === 1){ // return false でイベントを終了させる ブラウザ遷移を中断する
-        return false;
-    }if(parameter.page > 1) {
-      parameter.page--;
-      request();
-    }
-  });
-  
-  $(document).on('click','.next',function (result) {// 次ページ
-    if(parameter.page < parameter.pageCount){ // 現在のページ数 < 検索した時のページ総数
-      // console.log(parameter)
-      parameter.page++;
-      request();
-    }else if (parameter.page === parameter.pageCount){
-      // $('.lists').empty();
-      // return false;
-      noMorePageMessage();
-    };
-  });
-  
-  function showPager(show) {  // ページネーション
-    // console.log(show)//情報取り出し
-    $('.prev, .next').removeClass('disabled');
-    $('.js-pager').remove();
-    $('.lists').after(pager__template);
-    if(show.page===1){ // 1ページ目は前へは必然的に戻れないので
-      $('.prev').addClass('disabled');
-    }if(show.page === show.pageCount) {// 現在のページ= 最後のページだった場合
-      $('.next').addClass('disabled');
-    };
-  };
-});
+      
 </script>
 </body>
 </html>
