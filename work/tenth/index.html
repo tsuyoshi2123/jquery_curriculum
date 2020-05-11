@@ -27,16 +27,52 @@
     <script src="../../common/js/jquery.js"></script>
     <script>
       $(function(){
-        // var keyword = $('#js-search-word').val();
-        // $('.search__btn').on('click', function() {// 検索ボタン
-          // 検索ボタンをクリックした時に20件表示
-          // books__word()
-          // });
-          // console.log(keyword)
-          
-          // word = ''
         $('.search__btn').on('click', function() {
-          const word = $('.search__text__input').val();
+          word = $('.search__text__input').val();
+          first_count();
+          do_ajax();
+        });
+
+        $(document).on('click','.next' ,function(){ // HTML要素に簡単にアクセスできる
+          countup();
+          do_ajax();
+        });
+
+        $(document).on('click','.prev', function (){
+          countdown();
+          do_ajax();
+        });
+        
+        function first_count(){
+          count = 1;
+        };
+
+        function countup(aaa){
+          if (count >= 1) {
+            if(count === 1){
+              console.log(aaa);
+              count = count + 1;
+              do_ajax();
+            } else {
+              console.log(aaa);
+              do_ajax();
+            };
+          };  // 実行結果のpageCountをここに入れたい
+        };
+
+        // function countdown(){
+          // if(count === 1) {
+          //   do_ajax();
+          //   console.log(done);
+          // };
+          // if ( count > 1 ) {
+          //   count = count - 1;
+          //   do_ajax();
+          // }
+        // };
+
+
+        function do_ajax(){
           $.ajax({
             // 共有パラメータ
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
@@ -48,110 +84,151 @@
               booksGenreId: '001',
               keyword: word,
               hits: 20,
-              page: 1,
+              page: count,
             },
           }).done(done).fail(fail);
-        });
-        
+        };
 
-    //  ----------通信に成功した時-------
-        function done(done,b,c){
+      //  ----------通信に成功した時-------
+    function done(done){
+        // console.log(done.Items);
+        // console.log(done.page);
+        // console.log(done);
+        var max_page = done.pageCount;
+      switch (true) {
+          case done.page === 1:   // 1ページ目
+            // console.log(done);
+            $('.lists').empty();
+            $('.js-pager').remove();
+            pager();
+            books(done.Items);
+            $('.prev').addClass("disabled");
+            return false;
+          break;
+
+          case done.page <= done.pageCount:
+              // console.log(done.page);
+              // console.log(done.pageCount);
+            $(function(){
+              if(done.page === done.pageCount){
+                console.log(done);
+              }else if (done.page < done.pageCount){
+                count = count + 1;
+                books(done.Items);
+                console.log(done);
+              };
+            });
+          break;
+          
+          case done.page === done.pageCount:
+            console.log(done.pageCount)
+            $('.js-pager').remove();
+            pager(done);
+            books(done.Items);
+            no_next_message();
+            $('.next').addClass("disabled");
+            return false;
+          break;
+          
+          case done.Items.length === 0:// 長さが0の時
           console.log(done);
-          console.log(done.Items);
-          console.log(done.page);
-          switch (true) {
-            case done.page === 1:   // 1ページ目
-              console.log(done.page);
-              books(done);
-              
+          empty_message();
+            case done.page === done.pageCount:
+              $(function(){
+                console.log(done)
+                no_next_message();
+              });
             break;
-            case done.Items.length === 0:// 長さが0の時
-              console.log(done);
-              empty_message();
-            break;
-          };
+          break; 
+          
+        default:
+          console.log(done)
+        break;
+    };
+    }
+        function no_next_message(){
+          $('.search').after('<div class= message>これ以上ありません</div>')
         };
 
         function empty_message() {
           $('.search').after('<div class= message>検索結果が見つかりませんでした<br>別のキーワードを探してください</div>')
         };
 
+        function syntax__error() {
+          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
+        };
 
+        // function hits__books(){$('.lists').html(show__books);}
 
-    //  --------通信に失敗した時-------
+        function books(result){
+          var show__books = '';
+          // console.log(done.Items[0].Item);// Items[数字
+          // var shows = done
+          // largeImageUrl: show.Item.largeImageUrl,
+          // itemurl: show.Item.itemUrl,
+          // author: show.Item.author,
+          // publisherName: show.Item.publisherName,
+          // console.log(result);
+          $.each(result,function (index,show){
+          // console.log(index);
+          // console.log(result);
+          // console.log(show.Item.itemUrl);
+          show__books +=  '<li class=lists__item>'+
+                            '<div class=lists__item__inner>'+
+                              '<a href=' + show.Item.itemUrl + ' class=lists__item__link target=_blank>' +
+                                '<img src= ' + show.Item.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
+                                '<p class=lists__item__detail>作品名：' + show.Item.title +'</p>'+
+                                '<p class=lists__item__detail>作者&emsp;：' + show.Item.author +'</p>'+
+                                '<p class=lists__item__detail>出版社：' + show.Item.publisherName + '</p>'+
+                              '</a>'+
+                            '</div>'+
+                          '</li>';
+          });
+          $('.lists').html(show__books);
+        };
+
+        function pager(){
+          $('.lists').after('<div class=js-pager>'+
+                              '<ul class=btn-wrapper>'+
+                                '<li class="prev btn-item" >'+'<a class= btn-anchor href= "#">前へ</a>'+'</li>'+
+                                '<li class="next btn-item" >'+'<a class= btn-anchor href= "#">次へ</a>'+'</li>'+
+                              '</ul>'+
+                            '</div>'
+          );
+        };
+          
+        function empty_message(){
+          $('.search').after('<div class= message>検索結果が見つかりませんでした。<br>別のキーワードを探してください</div>')
+        };
+        
+        function others_message(){
+          $('.search').after('<div class= message>これ以上ありません</div>')
+        };
+
+        //--------通信に失敗した時-------
         function fail(fail){  // クライアントエラーレスポンス
           switch (true) {
             case fail.status === 400: // 構文エラーー
               syntax__error();
-            console.log(fail)
+            console.log(fail);
+            break;
+            case fail.status === 429:  // 一定時間の間大量のリクエストを送信した
+              request__error();
+            break;              
           }
         };
 
         function syntax__error() {
-           $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
+          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
         };
 
-        show__books = '';
-        function books(data){
-          $.each(data.Items,
-          function (number,show){
-            // console.log(number)// Items[数字]
-            // console.log(show.Item) // Items情報
-             // console.log(data.Items[number]);// 検索結果情報20件]
-            const book = {
-              title: show.Item.title,
-              largeImageUrl: show.Item.largeImageUrl,
-              itemurl: show.Item.itemUrl,
-              author: show.Item.author,
-              publisherName: show.Item.publisherName
-            };
-            console.log(book);
-            show__books += 
-            //  console.log(book.title)
-            '<li class=lists__item>'+
-              '<div class=lists__item__inner>'+
-                '<a href=' + book.itemurl + ' class=lists__item__link target=_blank>' +
-                  '<img src= ' + book.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
-                  '<p class=lists__item__detail>作品名：' + book.title +'</p>'+
-                  '<p class=lists__item__detail>作者&emsp;：' + book.author +'</p>'+
-                  '<p class=lists__item__detail>出版社：' + book.publisherName + '</p>'+
-                '</a>'+
-              '</div>'+
-            '</li>';
-          });
-            $('.lists').html(show__books);
+        function request__error() {
+          $('.search').after('<div class= message>予期せぬエラーが発生しました。</div>')
         };
-      });
 
+    });
 
-
-
-      //   show__books = '';
-      //   function books(data){
-      //     $.each(data.Items, function (number,show){
-      //       // console.log(data)
-      //       // var books__number = data.Items
-      //       show__books +=
-      //             '<li class=lists__item>'+
-      //               '<div class=lists__item__inner>'+
-      //                 '<a href=' + show.Item.itemUrl + ' class=lists__item__link target=_blank>' +
-      //                   '<img src= ' + show.Item.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
-      //                   '<p class=lists__item__detail>作品名：' + show.Item.title +'</p>'+
-      //                   '<p class=lists__item__detail>作者&emsp;：' + show.Item.author +'</p>'+
-      //                   '<p class=lists__item__detail>出版社：' + show.Item.publisherName + '</p>'+
-      //                 '</a>'+
-      //               '</div>'+
-      //             '</li>';
-      //       // console.log(number)// Items[数字]
-      //       // console.log(show.Item) // Items情報
-      //       // console.log(data.Items[number]);// 検索結果情報20件]
-      //     });
-      //     $('.lists').html(show__books);
-      //   };
-      
-      
-      
-        // 楽天ブックスの総合検索APIを使って製作してください。
+      // 楽天ブックスの総合検索APIを使って製作してください。
       // answerの挙動を良く見てね！
       //
       // 下記URLにAPIの仕様が載ってるいので、ブラウザで開いて参考にしてください。
