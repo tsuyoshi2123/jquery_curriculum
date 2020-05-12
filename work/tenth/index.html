@@ -26,141 +26,115 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-      $(function(){
-        $('.search__btn').on('click', function() {
-          word = $('.search__text__input').val();
-          first_serch();    // --1--前へ関数を呼び出し return false
-        });
-        
-        $(document).on('click','.next' ,function(){ // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
-          // console.log(pageCount);
-          if(count === pageCount){
-            // console.log(pageCount);
-            countup_select();
-          }
+  $(function(){ 
 
-          // if(count > 1) { // 1以上のページに1をプラス
-          //   console.log(pageCount);
-          //   do_ajax();
-          // }
+    // ------イベントクリック-----
 
-          if(count < pageCount){  // ページ総数以下の場合+1表示
-            console.log(pageCount);
-            count = count + 1;
-            do_ajax();
-          }
-        });
+    $('.search__btn').on('click', function() {
+      word = $('.search__text__input').val();
+      first_serch();    // --1--前へ関数を呼び出し return false
+    });
+    
+    $(document).on('click','.next' ,function(){ // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
+      // console.log(pageCount);
+      if(count === pageCount){
+        // console.log(pageCount);
+        countup_select();
+      }else if(count < pageCount){  // ページ総数以下の場合+1表示
+        console.log(pageCount);
+        count = count + 1;
+        do_ajax();
+      }
+    });
 
-        $(document).on('click','.prev', function (){  // return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
-          if(count === 1){
-            // console.log(pageCount)
-            return false;
-          }
-          if (count === 2){
-            // count = 1;
-            console.log(count);
-            count = count - 1;
-            do_ajax();
-          }
-          else if (count > 2){
-            count = count - 1;
-            do_ajax();
-          }
-        });
-        function first_serch(){
-          $('.message').remove();
-          $('.lists').empty();
-          count = 1;
-          do_ajax();
-        };
-        
-        function countup_select(){
-          $('.message').remove();
-          no_next_message();
-          return false;
-        };
+    $(document).on('click','.prev', function (){  // return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
+      if(count === 1){
+        // console.log(pageCount)
+        return false;
+      } else if (count === 2){
+        // count = 1;
+        console.log(count);
+        count = count - 1;
+        do_ajax();
+      } else if (count > 2){
+        count = count - 1;
+        do_ajax();
+      }
+    });
 
-        function countdown_select(){
-        };
-
-       var pageCount = '';  // 101行目 do_ajaxで出力パラメータのpageCountを代入する
-
-      function do_ajax(){
-        $.ajax({
-          // 共有パラメータ
-          url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
-          type: 'GET',  // type httpリクエストを指定する 送信形式
-          datatype: 'json', // javascriptデータのやりとりする為のデータ形式
-          data: { // 楽天クエリパラメータ
-            // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-            applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-            booksGenreId: '001',
-            keyword: word,
-            hits: 20,
-            page: count,
-          },
-        }).done(done).fail(fail); // 見やすくする為とコメントアウトで通信の成功・失敗の関数とメッセージを分けて見やすくする為
-      };
-
-        //  ----------通信に成功した時 関数条件分岐-------
-
-      function done(done){
-          // console.log(done.Items);
-          // console.log(done.pageCount);
-          // console.log(done.page);
-          // console.log(done.page)
-        pageCount = done.pageCount
-        switch (true) {
-            case done.page === 1:   // 1ページ目
-            // console.log(done);
-            $('.lists').empty();
-            $('.js-pager').remove();
-            books(done.Items);
-            operation_pager(done);
-            break;
-            
-            case done.page === done.pageCount: // 最終ページ
-              // console.log(done);
-              books(done.Items);
-              operation_pager(done);
-              // books(done.Items);
-            break;
-
-            // 最終
-            case done.page <= done.pageCount: // ページ総数以下 入れないと89行目干渉する
-              console.log(done);
-              // console.log(done.pageCount);
-              operation_pager(done);
-              $('.message').remove();
-              if (done.page < done.pageCount){  // 最終ページ以下の時
-                console.log(done);
-                // count = count + 1; // プラス1 これないときつい
-                books(done.Items);
-                operation_pager(done);
-              };
-            break;
-
-          // case done.Items.length === 0:// 長さが0の時
-          // console.log(done);
-          // empty_message();
-          //   case done.page === done.pageCount:
-          //     $(function(){
-          //       console.log(done)
-          //       no_next_message();
-          //     });
-          //   break;
-          // break; 
-          
-        default:
-          console.log(done)
-        break;
+    function first_serch(){
+      $('.message').remove();
+      $('.lists').empty();
+      count = 1;
+      do_ajax();
     };
-    }
+      
+    function countup_select(){
+      $('.message').remove();
+      no_next_message();
+      return false;
+    };
 
-// ------通信成功時disabled分岐------
+    var pageCount = '';  // 103行目 do_ajaxで出力パラメータのpageCountを代入する
 
+    function do_ajax(){
+      $.ajax({
+        // 共有パラメータ
+        url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
+        type: 'GET',  // type httpリクエストを指定する 送信形式
+        datatype: 'json', // javascriptデータのやりとりする為のデータ形式
+        data: { // 楽天クエリパラメータ
+          // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+          applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+          booksGenreId: '001',
+          keyword: word,
+          hits: 20,
+          page: count,
+        },
+      }).done(done).fail(fail); // 見やすくする為とコメントアウトで通信の成功・失敗の関数とメッセージを分けて見やすくする為
+    };
+
+    //  ----------通信成功時分岐-------
+
+    function done(done){
+      // console.log(done.Items);
+        // console.log(done.pageCount);
+        // console.log(done.page);
+        // console.log(done.page)
+      pageCount = done.pageCount
+      if (done.pageCount === 1){
+        console.log(done);
+        $('.js-pager').remove();
+        pager();
+        books(done.Items);
+        console.log(done);
+        $('.next, .prev').addClass('disabled');
+      } else if (done.page === 1){  // 1ページ目
+        console.log(done);
+        $('.lists').empty();
+        $('.js-pager').remove();
+        $('.message').remove();
+        books(done.Items);
+        operation_pager(done);
+        return false;
+      } else if (done.page === 0){// 長さが0の時
+        empty_message();
+      } else if (done.page === done.pageCount){ // 最終ページ
+        console.log(done);
+        books(done.Items);
+        operation_pager(done);
+        // books(done.Items);
+      } else if (done.page <= done.pageCount){   // ページ総数以下 
+        console.log(done);
+        console.log(done.pageCount);
+        $('.message').remove();
+        operation_pager(done);
+        books(done.Items);
+      };
+    };
+
+    // ------通信成功時disabled分岐------
     function operation_pager(pg){
-      // $('js-pager').remove();
       console.log(pg);
       $('.prev, .next').removeClass('disabled');
       if(pg.page === 1){
@@ -168,94 +142,90 @@
         pager();
         $('.prev').addClass('disabled');
       } else if (pg.page === pg.pageCount){
-        console.log(pg)
+        console.log(pg);
         $('.next').addClass('disabled');
         return false;
-      } 
+      } else {
+        return false;
+      }
     };
 
+    // ------通信成功時表示--------
+    function books(result){
+      var show__books = '';
+      // console.log(done.Items[0].Item);// Items[数字
+      // var shows = done
+      // largeImageUrl: show.Item.largeImageUrl,
+      // itemurl: show.Item.itemUrl,
+      // author: show.Item.author,
+      // publisherName: show.Item.publisherName,
+      // console.log(result);
+      $.each(result,function (index,show){
+      // console.log(index);
+      // console.log(result);
+      // console.log(show.Item.itemUrl);
+        show__books +=  '<li class=lists__item>'+
+                          '<div class=lists__item__inner>'+
+                            '<a href=' + show.Item.itemUrl + ' class=lists__item__link target=_blank>' +
+                              '<img src= ' + show.Item.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
+                              '<p class=lists__item__detail>作品名：' + show.Item.title +'</p>'+
+                              '<p class=lists__item__detail>作者&emsp;：' + show.Item.author +'</p>'+
+                              '<p class=lists__item__detail>出版社：' + show.Item.publisherName + '</p>'+
+                            '</a>'+
+                          '</div>'+
+                        '</li>';
+      });
+      $('.lists').html(show__books);
+    };
 
-// ------通信成功時表示--------
-        function books(result){
-          var show__books = '';
-          // console.log(done.Items[0].Item);// Items[数字
-          // var shows = done
-          // largeImageUrl: show.Item.largeImageUrl,
-          // itemurl: show.Item.itemUrl,
-          // author: show.Item.author,
-          // publisherName: show.Item.publisherName,
-          // console.log(result);
-          $.each(result,function (index,show){
-          // console.log(index);
-          // console.log(result);
-          // console.log(show.Item.itemUrl);
-          show__books +=  '<li class=lists__item>'+
-                            '<div class=lists__item__inner>'+
-                              '<a href=' + show.Item.itemUrl + ' class=lists__item__link target=_blank>' +
-                                '<img src= ' + show.Item.largeImageUrl + ' class=lists__item__img' + ' alt= >'+
-                                '<p class=lists__item__detail>作品名：' + show.Item.title +'</p>'+
-                                '<p class=lists__item__detail>作者&emsp;：' + show.Item.author +'</p>'+
-                                '<p class=lists__item__detail>出版社：' + show.Item.publisherName + '</p>'+
-                              '</a>'+
-                            '</div>'+
-                          '</li>';
-          });
-          $('.lists').html(show__books);
-        };
+    function pager(){
+      $('.lists').after('<div class=js-pager>'+
+                          '<ul class=btn-wrapper>'+
+                            '<li class="prev btn-item" >'+'<a class= btn-anchor href= "#">前へ</a>'+'</li>'+
+                            '<li class="next btn-item" >'+'<a class= btn-anchor href= "#">次へ</a>'+'</li>'+
+                          '</ul>'+
+                        '</div>'
+      );
+    };
 
-        function pager(){
-          $('.lists').after('<div class=js-pager>'+
-                              '<ul class=btn-wrapper>'+
-                                '<li class="prev btn-item" >'+'<a class= btn-anchor href= "#">前へ</a>'+'</li>'+
-                                '<li class="next btn-item" >'+'<a class= btn-anchor href= "#">次へ</a>'+'</li>'+
-                              '</ul>'+
-                            '</div>'
-          );
-        };
+    // -------通信成功時メッセージ表示-------
+    function no_next_message(){
+      $('.search').after('<div class= message>これ以上はありません</div>')
+    };
 
-        function no_next_message(){
-          $('.search').after('<div class= message>これ以上ありません</div>')
-        };
+    function empty_message() {
+      $('.search').after('<div class= message>検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>')
+    };
 
-        function empty_message() {
-          $('.search').after('<div class= message>検索結果が見つかりませんでした<br>別のキーワードを探してください</div>')
-        };
+    //--------通信失敗時分岐-------
+    function fail(fail){  // クライアントエラーレスポンス
+      if (fail.status === 400){ // 構文エラーー
+          syntax__error();
+        // console.log(fail);
+      } else if (fail.status === 429){  // 一定時間の間大量のリクエストを送信した
+          request__error();
+      } else if (fail.status === 0){  // 一定時間の間大量のリクエストを送信した
+          network__error();
+      } else {
+          console.log(fail)
+      };
+    };
 
-        function syntax__error() {
-          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
-        };
-          
-        function empty_message(){
-          $('.search').after('<div class= message>検索結果が見つかりませんでした。<br>別のキーワードを探してください</div>')
-        };
-        
-        function others_message(){
-          $('.search').after('<div class= message>これ以上ありません</div>')
-        };
+    //--------通信失敗時エラーメッセージ-------
+    function syntax__error() {
+      $('.search').after('<div class= message>検索文字が空、もしくは半角英数1文字になっています</div>')
+    };
 
-        //--------通信に失敗した時-------
-        function fail(fail){  // クライアントエラーレスポンス
-          switch (true) {
-            case fail.status === 400: // 構文エラーー
-              syntax__error();
-            console.log(fail);
-            break;
-            case fail.status === 429:  // 一定時間の間大量のリクエストを送信した
-              request__error();
-            break;              
-          }
-        };
-
-        function syntax__error() {
-          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
-        };
-
-        function request__error() {
-          $('.lists').empty();
-          $('.search').after('<div class= message>予期せぬエラーが発生しました。</div>')
-        };
-
-});
+    function request__error() {
+      $('.lists').empty();
+      $('.search').after('<div class= message>予期せぬエラーが発生しました。</div>')
+    };
+    
+    function network__error(){
+      $('.lists').empty();
+      $('.search').after('<div class= message>通信に失敗しました。インターネットの接続をご確認ください</div>')
+    }
+  });
 
       // 楽天ブックスの総合検索APIを使って製作してください。
       // answerの挙動を良く見てね！
@@ -310,8 +280,6 @@
       //     <li class="next btn-item"><a class="btn-anchor" href="">次へ</a></li>
       //   </ul>
       // </div>
-      //
-      //
       
 
       
