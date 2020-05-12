@@ -33,15 +33,20 @@
         });
         
         $(document).on('click','.next' ,function(){ // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
-          console.log(pageCount);
-          if(count === 1){  // 最初のページのみに1をプラス
-            count = count + 1;
-            do_ajax();
-          }else if(count === pageCount){
+          // console.log(pageCount);
+          if(count === pageCount){
             // console.log(pageCount);
             countup_select();
-          }else if(count > 1) { // 1以上のページに1をプラス
+          }
+
+          // if(count > 1) { // 1以上のページに1をプラス
+          //   console.log(pageCount);
+          //   do_ajax();
+          // }
+
+          if(count < pageCount){  // ページ総数以下の場合+1表示
             console.log(pageCount);
+            count = count + 1;
             do_ajax();
           }
         });
@@ -54,21 +59,13 @@
           if (count === 2){
             // count = 1;
             console.log(count);
-            count = count - 2;
+            count = count - 1;
             do_ajax();
-            // do_ajax();
-            // console.log(count)
           }
           else if (count > 2){
             count = count - 1;
             do_ajax();
           }
-          // else if (count > 1){
-            // // console.log(count)
-            // count = count - 1;
-            // do_ajax();
-            // // console.log(count)
-          // } 
         });
         function first_serch(){
           $('.message').remove();
@@ -86,7 +83,7 @@
         function countdown_select(){
         };
 
-        pageCount = '';  // 101行目 do_ajaxで出力パラメータのpageCountを代入する
+       var pageCount = '';  // 101行目 do_ajaxで出力パラメータのpageCountを代入する
 
       function do_ajax(){
         $.ajax({
@@ -105,14 +102,14 @@
         }).done(done).fail(fail); // 見やすくする為とコメントアウトで通信の成功・失敗の関数とメッセージを分けて見やすくする為
       };
 
-        //  ----------通信に成功した時アクション表示関数-------
+        //  ----------通信に成功した時 関数条件分岐-------
 
       function done(done){
           // console.log(done.Items);
-          // console.log(done.page);
           // console.log(done.pageCount);
+          // console.log(done.page);
           // console.log(done.page)
-          pageCount = done.page
+        pageCount = done.pageCount
         switch (true) {
             case done.page === 1:   // 1ページ目
             // console.log(done);
@@ -121,8 +118,8 @@
             books(done.Items);
             operation_pager(done);
             break;
-
-            case (done.page === done.pageCount): // 最終ページ
+            
+            case done.page === done.pageCount: // 最終ページ
               // console.log(done);
               books(done.Items);
               operation_pager(done);
@@ -137,7 +134,7 @@
               $('.message').remove();
               if (done.page < done.pageCount){  // 最終ページ以下の時
                 console.log(done);
-                count = count + 1; // プラス1 これないときつい
+                // count = count + 1; // プラス1 これないときつい
                 books(done.Items);
                 operation_pager(done);
               };
@@ -164,7 +161,7 @@
 
     function operation_pager(pg){
       // $('js-pager').remove();
-      console.log(pg)
+      console.log(pg);
       $('.prev, .next').removeClass('disabled');
       if(pg.page === 1){
         console.log(pg);
