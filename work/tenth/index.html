@@ -29,137 +29,156 @@
       $(function(){
         $('.search__btn').on('click', function() {
           word = $('.search__text__input').val();
-          first_count();
-          do_ajax();
-        });
-
-        $(document).on('click','.next' ,function(){ // HTML要素に簡単にアクセスできる
-          countup();
-          do_ajax();
-        });
-
-        $(document).on('click','.prev', function (){
-          countdown();
-          do_ajax();
+          first_serch();    // --1--前へ関数を呼び出し return false
         });
         
-        function first_count(){
+        $(document).on('click','.next' ,function(){ // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
+          console.log(pageCount);
+          if(count === 1){  // 最初のページのみに1をプラス
+            count = count + 1;
+            do_ajax();
+          }else if(count === pageCount){
+            // console.log(pageCount);
+            countup_select();
+          }else if(count > 1) { // 1以上のページに1をプラス
+            console.log(pageCount);
+            do_ajax();
+          }
+        });
+
+        $(document).on('click','.prev', function (){  // return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
+          if(count === 1){
+            // console.log(pageCount)
+            return false;
+          }
+          if (count === 2){
+            // count = 1;
+            console.log(count);
+            count = count - 2;
+            do_ajax();
+            // do_ajax();
+            // console.log(count)
+          }
+          else if (count > 2){
+            count = count - 1;
+            do_ajax();
+          }
+          // else if (count > 1){
+            // // console.log(count)
+            // count = count - 1;
+            // do_ajax();
+            // // console.log(count)
+          // } 
+        });
+        function first_serch(){
+          $('.message').remove();
+          $('.lists').empty();
           count = 1;
+          do_ajax();
+        };
+        
+        function countup_select(){
+          $('.message').remove();
+          no_next_message();
+          return false;
         };
 
-        function countup(aaa){
-          if (count >= 1) {
-            if(count === 1){
-              console.log(aaa);
-              count = count + 1;
-              do_ajax();
-            } else {
-              console.log(aaa);
-              do_ajax();
-            };
-          };  // 実行結果のpageCountをここに入れたい
+        function countdown_select(){
         };
 
-        // function countdown(){
-          // if(count === 1) {
-          //   do_ajax();
-          //   console.log(done);
-          // };
-          // if ( count > 1 ) {
-          //   count = count - 1;
-          //   do_ajax();
-          // }
-        // };
+        pageCount = '';  // 101行目 do_ajaxで出力パラメータのpageCountを代入する
 
+      function do_ajax(){
+        $.ajax({
+          // 共有パラメータ
+          url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
+          type: 'GET',  // type httpリクエストを指定する 送信形式
+          datatype: 'json', // javascriptデータのやりとりする為のデータ形式
+          data: { // 楽天クエリパラメータ
+            // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+            applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+            booksGenreId: '001',
+            keyword: word,
+            hits: 20,
+            page: count,
+          },
+        }).done(done).fail(fail); // 見やすくする為とコメントアウトで通信の成功・失敗の関数とメッセージを分けて見やすくする為
+      };
 
-        function do_ajax(){
-          $.ajax({
-            // 共有パラメータ
-            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
-            type: 'GET',  // type httpリクエストを指定する 送信形式
-            datatype: 'json', // javascriptデータのやりとりする為のデータ形式
-            data: { // 楽天クエリパラメータ
-              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-              booksGenreId: '001',
-              keyword: word,
-              hits: 20,
-              page: count,
-            },
-          }).done(done).fail(fail);
-        };
+        //  ----------通信に成功した時アクション表示関数-------
 
-      //  ----------通信に成功した時-------
-    function done(done){
-        // console.log(done.Items);
-        // console.log(done.page);
-        // console.log(done);
-        var max_page = done.pageCount;
-      switch (true) {
-          case done.page === 1:   // 1ページ目
+      function done(done){
+          // console.log(done.Items);
+          // console.log(done.page);
+          // console.log(done.pageCount);
+          // console.log(done.page)
+          pageCount = done.page
+        switch (true) {
+            case done.page === 1:   // 1ページ目
             // console.log(done);
             $('.lists').empty();
             $('.js-pager').remove();
-            pager();
             books(done.Items);
-            $('.prev').addClass("disabled");
-            return false;
-          break;
-
-          case done.page <= done.pageCount:
-              // console.log(done.page);
-              // console.log(done.pageCount);
-            $(function(){
-              if(done.page === done.pageCount){
-                console.log(done);
-              }else if (done.page < done.pageCount){
-                count = count + 1;
-                books(done.Items);
-                console.log(done);
-              };
-            });
-          break;
-          
-          case done.page === done.pageCount:
-            console.log(done.pageCount)
-            $('.js-pager').remove();
-            pager(done);
-            books(done.Items);
-            no_next_message();
-            $('.next').addClass("disabled");
-            return false;
-          break;
-          
-          case done.Items.length === 0:// 長さが0の時
-          console.log(done);
-          empty_message();
-            case done.page === done.pageCount:
-              $(function(){
-                console.log(done)
-                no_next_message();
-              });
+            operation_pager(done);
             break;
-          break; 
+
+            case (done.page === done.pageCount): // 最終ページ
+              // console.log(done);
+              books(done.Items);
+              operation_pager(done);
+              // books(done.Items);
+            break;
+
+            // 最終
+            case done.page <= done.pageCount: // ページ総数以下 入れないと89行目干渉する
+              console.log(done);
+              // console.log(done.pageCount);
+              operation_pager(done);
+              $('.message').remove();
+              if (done.page < done.pageCount){  // 最終ページ以下の時
+                console.log(done);
+                count = count + 1; // プラス1 これないときつい
+                books(done.Items);
+                operation_pager(done);
+              };
+            break;
+
+          // case done.Items.length === 0:// 長さが0の時
+          // console.log(done);
+          // empty_message();
+          //   case done.page === done.pageCount:
+          //     $(function(){
+          //       console.log(done)
+          //       no_next_message();
+          //     });
+          //   break;
+          // break; 
           
         default:
           console.log(done)
         break;
     };
     }
-        function no_next_message(){
-          $('.search').after('<div class= message>これ以上ありません</div>')
-        };
 
-        function empty_message() {
-          $('.search').after('<div class= message>検索結果が見つかりませんでした<br>別のキーワードを探してください</div>')
-        };
+// ------通信成功時disabled分岐------
 
-        function syntax__error() {
-          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
-        };
+    function operation_pager(pg){
+      // $('js-pager').remove();
+      console.log(pg)
+      $('.prev, .next').removeClass('disabled');
+      if(pg.page === 1){
+        console.log(pg);
+        pager();
+        $('.prev').addClass('disabled');
+      } else if (pg.page === pg.pageCount){
+        console.log(pg)
+        $('.next').addClass('disabled');
+        return false;
+      } 
+    };
 
-        // function hits__books(){$('.lists').html(show__books);}
 
+// ------通信成功時表示--------
         function books(result){
           var show__books = '';
           // console.log(done.Items[0].Item);// Items[数字
@@ -196,6 +215,18 @@
                             '</div>'
           );
         };
+
+        function no_next_message(){
+          $('.search').after('<div class= message>これ以上ありません</div>')
+        };
+
+        function empty_message() {
+          $('.search').after('<div class= message>検索結果が見つかりませんでした<br>別のキーワードを探してください</div>')
+        };
+
+        function syntax__error() {
+          $('.search').after('<div class= message>検索結果文字が空、もしくは半角英数1文字になっています。</div>')
+        };
           
         function empty_message(){
           $('.search').after('<div class= message>検索結果が見つかりませんでした。<br>別のキーワードを探してください</div>')
@@ -223,10 +254,11 @@
         };
 
         function request__error() {
+          $('.lists').empty();
           $('.search').after('<div class= message>予期せぬエラーが発生しました。</div>')
         };
 
-    });
+});
 
       // 楽天ブックスの総合検索APIを使って製作してください。
       // answerの挙動を良く見てね！
