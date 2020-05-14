@@ -26,7 +26,7 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-  $(function(){ 
+  $(function() { 
 
     // ------イベントクリック-----
 
@@ -35,42 +35,42 @@
       first_serch();    // --1--前へ関数を呼び出し return false
     });
     
-    $(document).on('click','.next' ,function(){ // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
+    $(document).on('click','.next' ,function() { // return false ⇦ 関数呼び出しでページトップに動かしたい為関数呼び出しで同じ動きする データ読み込みはさせない   HTML要素に簡単にアクセスできる
       // console.log(pageCount);
-      if ( count === pageCount ){
+      if ( count === pageCount ) { // ページ総数
         console.log(pageCount);
         countup_select();
-      } else if ( count < pageCount ){  // ページ総数以下の場合+1表示
+      } else if ( count < pageCount ) {  // ページ総数以下の場合+1表示
         console.log(pageCount);
         count = count + 1;
         do_ajax();
       };
     });
 
-    $(document).on('click','.prev', function (){  // return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
+    $(document).on('click','.prev', function() {  // return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
       if ( count === 1 ){
         // console.log(pageCount)
         return false;
-      } else if ( count === 2 ){
+      } else if ( count === 2 ) {
         // count = 1;
         console.log(count);
         count = count - 1;
         do_ajax();
-      } else if ( count > 2 ){
+      } else if ( count > 2 ) {
         count = count - 1;
         do_ajax();
       };
     });
 
     // ------セレクター分岐-------
-    function first_serch(){
+    function first_serch() {
       $('.message').remove();
       $('.lists').empty();
       count = 1;
       do_ajax();
     };
     
-    function countup_select(){
+    function countup_select() {
       $('.message').remove();
       no_next_message();
       return false;
@@ -78,7 +78,7 @@
     
     // ------ajax done fail分岐---------
     var pageCount = '';  // 102行目 do_ajaxで出力パラメータのpageCountを代入する
-    function do_ajax(){
+    function do_ajax() {
       $.ajax({
         // 共有パラメータ
         url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', // Ajaxリクエストを送信するURLを指定
@@ -94,7 +94,7 @@
         },
       }).done(done).fail(fail); // 見やすくする為とコメントアウトで通信の成功・失敗の関数とメッセージを分けて見やすくする為
     };
-    function done(done){
+    function done(done) {
       // console.log(done.Items);
       // console.log(done.pageCount);
       // console.log(done.page);
@@ -136,16 +136,16 @@
       if ( fail.status === 400 ) // 構文エラーー
         syntax__error();
       else if ( fail.status === 429 )  // 一定時間の間大量のリクエストを送信した
-          request__error();
-      else if ( fail.status === 0 )  // 一定時間の間大量のリクエストを送信した
-          network__error();
-      else 
+        request__error();
+      else if ( fail.status === 0 )  //  ネットが切れた時
+        network__error();
+      else
         console.log(fail);
     };
 
 
     // ------通信成功時disabled分岐------
-    function operation_pager(pg){
+    function operation_pager(pg) {
       console.log(pg);
       $('.prev, .next').removeClass('disabled');
       if ( pg.page === 1 ) {
@@ -157,12 +157,12 @@
         $('.next').addClass('disabled');
         return false;
       } else {
-        return false;
+        console.log(pg);
       }
     };
 
     // ------通信成功時 本 ページネーション--------
-    function books(result){
+    function books(result) {
       var show__books = '';
       // console.log(done.Items[0].Item);// Items[数字
       // var shows = done
@@ -171,7 +171,7 @@
       // author: show.Item.author,
       // publisherName: show.Item.publisherName,
       // console.log(result);
-      $.each(result,function (index,show){
+      $.each(result,function (index,show) {
       // console.log(index);
       // console.log(result);
       // console.log(show.Item.itemUrl);
@@ -189,7 +189,7 @@
       $('.lists').html(show__books);
     };
 
-    function pager(){
+    function pager() {
       $('.lists').after('<div class=js-pager>'+
                           '<ul class=btn-wrapper>'+
                             '<li class="prev btn-item" >'+'<a class= btn-anchor href= "#">前へ</a>'+'</li>'+
@@ -200,7 +200,7 @@
     };
 
     // -------通信成功時メッセージ表示-------
-    function no_next_message(){
+    function no_next_message() {
       $('.search').after('<div class= message>これ以上はありません</div>');
     };
 
@@ -217,7 +217,7 @@
       $('.search').after('<div class= message>予期せぬエラーが発生しました。</div>');
     };
     
-    function network__error(){
+    function network__error() {
       $('.search').after('<div class= message>通信に失敗しました。インターネットの接続をご確認ください</div>');
     };
   });
