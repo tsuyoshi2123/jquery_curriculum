@@ -45,7 +45,7 @@
         do_ajax();
       };
     });
-    
+
     $(document).on('click','.prev', function() { //return false ⇦ 関数呼び出しだと動いてしまう為イベントクリック時の処理内にreturnfalse
       if ( count === 1 ){
         return false;
@@ -65,7 +65,7 @@
 
   function countup_select() { // 次へ押した時挙動
     $('.message').remove();
-    no_next_message();
+    request_message('これ以上ありません');
     return false;
   };
 
@@ -97,7 +97,7 @@
     if ( done.pageCount === 1 ) {  // 検索結果総数が1ページのみの時
       $('.next, .prev').addClass('disabled');
     } else if ( done.page === 0 ) { // 長さが0の時
-      empty_message();
+      empty_message();   // 検索結果見つからない メッセージ表示
     };
   };
 
@@ -105,30 +105,26 @@
   function fail(fail) { //クライアントエラーレスポンス
     $('.message').remove();
     if ( fail.status === 400 ) { // 構文エラーー
-      syntax__error();
+      request_message('検索文字が空、もしくは半角英数1文字になっています');
     }else if ( fail.status === 429 ) { // 一定時間の間大量のリクエストを送信した
-      request__error();
+      request_message('予期せぬエラーが発生しました。');
     } else if ( fail.status === 0 ) { //  ネットが切れた時
-      network__error();
+      request_message('通信に失敗しました。インターネットの接続をご確認ください');
+    } else {
+      request_message('そのほかのエラーが発生しました');
     };
   };
 
   // ------通信成功時disabled分岐------
   function operation_pager(pg) {
     books(pg.Items);
-    pager();
-    $('.prev, .next').removeClass('disabled');
-    if ( pg.page <= 1 ) {
-      $('.prev').addClass('disabled');
-    } else if ( pg.page === pg.pageCount ) {
-      $('.next').addClass('disabled');
-      return false;
-    } 
+    pager(pg);
   };
 
   // ------通信成功時 本 ページネーション--------
   function books(result) {
     var show__books = '';
+    console.log(result)
     $.each(result,function (index,show) {
       show__books +=  '<li class=lists__item>'+
                         '<div class=lists__item__inner>'+
@@ -144,7 +140,7 @@
     $('.lists').html(show__books);
   };
 
-  function pager() {
+  function pager(pg) {
     $('.lists').after(
       '<div class=js-pager>'+
         '<ul class=btn-wrapper>'+
@@ -153,28 +149,19 @@
         '</ul>'+
       '</div>'
     );
+
+    $('.prev, .next').removeClass('disabled');
+    if ( pg.page <= 1 ) {
+      $('.prev').addClass('disabled');
+    } else if ( pg.page === pg.pageCount ) {
+      $('.next').addClass('disabled');
+      return false;
+    };
   };
 
-  // -------通信成功時メッセージ表示-------
-  function no_next_message() {
-    $('.search').after('<p class= message>これ以上はありません</p>');
-  };
-
-  function empty_message() {
-    $('.search').after('<p class= message>検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>');
-  };
-
-  //--------通信失敗時エラーメッセージ-------
-  function syntax__error() {
-    $('.search').after('<p class= message>検索文字が空、もしくは半角英数1文字になっています</p>');
-  };
-
-  function request__error() {
-    $('.search').after('<p class= message>予期せぬエラーが発生しました。</p>');
-  };
-
-  function network__error() {
-    $('.search').after('<p class= message>通信に失敗しました。インターネットの接続をご確認ください</p>');
+  // -------メッセージ表示-------
+  function request_message(error) {
+    $('.search').after('<p class= message>'+ error + '</p>');
   };
 
   // 楽天ブックスの総合検索APIを使って製作してください。
